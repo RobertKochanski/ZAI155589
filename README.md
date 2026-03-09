@@ -4,4 +4,3 @@ Zaawansowane aplikacje internetowe - Robert Kochański 155589
 ## Branches
 - main - materiały z ćwiczeń
 - project1
-- project2
