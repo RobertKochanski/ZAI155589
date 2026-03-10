@@ -11,62 +11,92 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .customPermissions import IsOwnerOrAdmin
-from .models import Pokemon
+from .models import Pokemon, Type
 from .serializers import PokemonWriteSerializer, PokemonReadSerializer, RegisterSerializer, UserSerializer, \
-    PokemonSummarySerializer
+    PokemonSummarySerializer, TypeSerializer
 
 
-class PokemonViewSet(viewsets.ModelViewSet):
-    name = "pokemon"
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
+class PokemonListCreateView(generics.ListCreateAPIView):
+    name = 'pokemon-list'
     queryset = Pokemon.objects.prefetch_related(
         "types",
         "abilities",
         "moves"
     )
-
+    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         SearchFilter,
         OrderingFilter
     ]
-
     filterset_fields = {
         "height": ["exact", "gt", "lt"],
         "weight": ["exact", "gt", "lt"],
         "types__name": ["exact"]
     }
-    search_fields = [
-        "name"
-    ]
+    search_fields = ["name"]
     ordering_fields = [
         "name",
         "height",
         "weight"
     ]
 
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return PokemonWriteSerializer
+        return PokemonReadSerializer
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return PokemonWriteSerializer
 
+class PokemonDetailView(generics.RetrieveUpdateDestroyAPIView):
+    name = "pokemon-detail"
+    queryset = Pokemon.objects.prefetch_related(
+        "types",
+        "abilities",
+        "moves"
+    )
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+
+    def get_serializer_class(self):
+        if self.request.method in ["PUT", "PATCH"]:
+            return PokemonWriteSerializer
         return PokemonReadSerializer
 
-    @action(detail=False, methods=["get"])
-    def summary(self, request):
-        pokemons = self.get_queryset()
 
-        page = self.paginate_queryset(pokemons)
-        if page is not None:
-            serializer = PokemonSummarySerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+class PokemonSummaryView(generics.ListAPIView):
+    name = "pokemon-summary"
+    queryset = Pokemon.objects.prefetch_related(
+        "types",
+        "abilities",
+        "moves"
+    )
+    serializer_class = PokemonSummarySerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter
+    ]
+    filterset_fields = {
+        "height": ["exact", "gt", "lt"],
+        "weight": ["exact", "gt", "lt"],
+        "types__name": ["exact"]
+    }
+    search_fields = ["name"]
+    ordering_fields = [
+        "name",
+        "height",
+        "weight"
+    ]
 
-        serializer = PokemonSummarySerializer(pokemons, many=True)
 
-        return Response(serializer.data)
+class TypesView(generics.ListAPIView):
+    name = "allTypes"
+    permission_classes = [IsAuthenticated]
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -79,14 +109,13 @@ class RegisterView(generics.CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
-class MeView(APIView):
+class MeView(generics.RetrieveAPIView):
     name = "user"
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(tags=["Auth"])
-    def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+    def get_object(self):
+        return self.request.user
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

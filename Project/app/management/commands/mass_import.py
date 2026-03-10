@@ -4,6 +4,6 @@ from app.management.services import import_pokemons
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        import_pokemons(50)
+        import_pokemons(151)
 
         self.stdout.write("Pokemons imported successfully")
