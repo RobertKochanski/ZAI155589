@@ -1,13 +1,9 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets, generics
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import action
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .customPermissions import IsOwnerOrAdmin
@@ -120,6 +116,7 @@ class MeView(generics.RetrieveAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     name = "token"
+
     @swagger_auto_schema(tags=["Auth"])
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)

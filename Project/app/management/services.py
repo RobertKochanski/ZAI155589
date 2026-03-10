@@ -1,7 +1,9 @@
-import httpx
 import asyncio
 
+import httpx
+
 from app.models import Pokemon, Type, Ability, Move
+
 
 async def fetch_pokemon_list(limit=20):
     url = f"https://pokeapi.co/api/v2/pokemon?limit={limit}"

@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Pokemon, Type, Ability, Move
+
 from app.exceptions import PokemonTypeLimitExceeded, PokemonTypeDuplicated, PokemonMoveDuplicated
+from .models import Pokemon, Type, Ability, Move
 
 
 class RegisterSerializer(serializers.ModelSerializer):

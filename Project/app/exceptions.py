@@ -1,6 +1,6 @@
-from rest_framework.views import exception_handler
-from rest_framework.response import Response
 from rest_framework.exceptions import APIException
+from rest_framework.response import Response
+from rest_framework.views import exception_handler
 
 
 def custom_exception_handler(exc, context):
@@ -21,15 +21,18 @@ class PokemonTypeLimitExceeded(APIException):
     default_detail = "Pokemon cannot have more than 2 types."
     default_code = "pokemon_type_limit"
 
+
 class PokemonTypeDuplicated(APIException):
     status_code = 400
     default_detail = "Pokemon cannot have duplicate types."
     default_code = "pokemon_type_duplicated"
 
+
 class PokemonMoveDuplicated(APIException):
     status_code = 400
     default_detail = "Pokemon cannot have duplicate moves."
     default_code = "pokemon_move_duplicated"
+
 
 class PokemonAbilitiesDuplicated(APIException):
     status_code = 400
