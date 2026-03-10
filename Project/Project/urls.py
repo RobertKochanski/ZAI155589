@@ -14,11 +14,41 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
-from app.views import index
+from django.urls import path, include
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+from app import views
+from app.views import CustomTokenObtainPairView, CustomTokenRefreshView
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title='POKEGGER',
+        default_version='v1',
+        description='API ZAI endpoints',
+        terms_of_service='https://www.google.com/policies/terms/',
+    ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
+    # ADMIN
     path('admin/', admin.site.urls),
-    path('', index, name='index'),
+
+    # SWAGGER
+    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    # TOKEN
+    path("api/token/", CustomTokenObtainPairView.as_view(), name=views.CustomTokenObtainPairView.name),
+    path("api/token/refresh/", CustomTokenRefreshView.as_view()),
+
+    # APP
+    path("api/", include("app.urls")),
 ]
