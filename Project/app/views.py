@@ -94,6 +94,9 @@ class TypesView(generics.ListAPIView):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
 
+    search_fields = ["name"]
+    ordering_fields = ["name"]
+
 
 class RegisterView(generics.CreateAPIView):
     name = "register"

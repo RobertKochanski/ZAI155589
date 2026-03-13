@@ -142,7 +142,7 @@ class PokemonWriteSerializer(serializers.ModelSerializer):
         names = [t.name for t in value]
 
         if len(names) != len(set(names)):
-            raise PokemonTypeDuplicated("type")
+            raise PokemonTypeDuplicated()
 
         return value
 

@@ -67,8 +67,6 @@ class AuthTests(APITestCase):
         client = APIClient()
 
         getTokenUrl = reverse("token")
-        getUserUrl = reverse("user")
-        user = User.objects.create_user('admin', 'admin@admin.com', 'admin123')
 
         # Act
         responseToken = client.post(getTokenUrl, {"username": "admin", "password": "admin"}, format="json")

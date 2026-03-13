@@ -15,18 +15,19 @@ async def fetch_pokemon_list(limit=20):
     return data["results"]
 
 
-async def fetch_pokemon_details(client, url):
-    response = await client.get(url)
-
-    return response.json()
+async def fetch_pokemon_details(client, url, semaphore):
+    async with semaphore:
+        response = await client.get(url)
+        return response.json()
 
 
 async def fetch_all_pokemons(limit=20):
     pokemons = await fetch_pokemon_list(limit)
+    semaphore = asyncio.Semaphore(10)
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30) as client:
         tasks = [
-            fetch_pokemon_details(client, p["url"])
+            fetch_pokemon_details(client, p["url"], semaphore)
             for p in pokemons
         ]
 
@@ -35,38 +36,89 @@ async def fetch_all_pokemons(limit=20):
     return results
 
 
-def save_pokemons(results):
-    for data in results:
-        pokemon, _ = Pokemon.objects.get_or_create(
-            name=data["name"],
-            defaults={
-                "height": data["height"],
-                "weight": data["weight"],
-            }
-        )
-
-        for t in data["types"]:
-            type_obj, _ = Type.objects.get_or_create(
-                name=t["type"]["name"]
-            )
-
-            pokemon.types.add(type_obj)
-
-        for a in data["abilities"]:
-            ability_obj, _ = Ability.objects.get_or_create(
-                name=a["ability"]["name"]
-            )
-
-            pokemon.abilities.add(ability_obj)
-
-        for m in data["moves"][:10]:
-            move_obj, _ = Move.objects.get_or_create(
-                name=m["move"]["name"]
-            )
-
-            pokemon.moves.add(move_obj)
-
-
 def import_pokemons(limit=20):
     results = asyncio.run(fetch_all_pokemons(limit))
-    save_pokemons(results)
+
+    pokemon_objs = []
+    type_names = set()
+    ability_names = set()
+    move_names = set()
+
+    # zbieranie danych
+    for data in results:
+        pokemon_objs.append(
+            Pokemon(
+                name=data["name"],
+                height=data["height"],
+                weight=data["weight"]
+            )
+        )
+
+        type_names |= {t["type"]["name"] for t in data["types"]}
+        ability_names |= {a["ability"]["name"] for a in data["abilities"]}
+        move_names |= {m["move"]["name"] for m in data["moves"][:10]}
+
+
+    with transaction.atomic():
+
+        # bulk create słowników
+        Type.objects.bulk_create(
+            [Type(name=n) for n in type_names],
+            ignore_conflicts=True
+        )
+
+        Ability.objects.bulk_create(
+            [Ability(name=n) for n in ability_names],
+            ignore_conflicts=True
+        )
+
+        Move.objects.bulk_create(
+            [Move(name=n) for n in move_names],
+            ignore_conflicts=True
+        )
+
+        # bulk create pokemonów
+        Pokemon.objects.bulk_create(pokemon_objs, ignore_conflicts=True)
+
+        # mapy obiektów
+        pokemon_map = {p.name: p for p in Pokemon.objects.all()}
+        type_map = {t.name: t for t in Type.objects.all()}
+        ability_map = {a.name: a for a in Ability.objects.all()}
+        move_map = {m.name: m for m in Move.objects.all()}
+
+        pokemon_types = []
+        pokemon_abilities = []
+        pokemon_moves = []
+
+        # relacje
+        for data in results:
+
+            p = pokemon_map[data["name"]]
+
+            for t in data["types"]:
+                pokemon_types.append(
+                    Pokemon.types.through(
+                        pokemon_id=p.id,
+                        type_id=type_map[t["type"]["name"]].id
+                    )
+                )
+
+            for a in data["abilities"]:
+                pokemon_abilities.append(
+                    Pokemon.abilities.through(
+                        pokemon_id=p.id,
+                        ability_id=ability_map[a["ability"]["name"]].id
+                    )
+                )
+
+            for m in data["moves"][:10]:
+                pokemon_moves.append(
+                    Pokemon.moves.through(
+                        pokemon_id=p.id,
+                        move_id=move_map[m["move"]["name"]].id
+                    )
+                )
+
+        Pokemon.types.through.objects.bulk_create(pokemon_types, ignore_conflicts=True)
+        Pokemon.abilities.through.objects.bulk_create(pokemon_abilities, ignore_conflicts=True)
+        Pokemon.moves.through.objects.bulk_create(pokemon_moves, ignore_conflicts=True)

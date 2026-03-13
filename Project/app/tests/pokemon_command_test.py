@@ -78,6 +78,27 @@ class PokemonTests(APITestCase):
         assert Pokemon.objects.count() == 0
 
 
+    def test_CreatePokemon_WithNonExistType_ReturnBadRequest(self):
+        # Arrange
+        url = reverse("pokemon-list")
+
+        data = {
+            "name": "marshadow",
+            "height": 7,
+            "weight": 222,
+            "types": ["fighting", "dark"],
+            "abilities": ["cursed-body"],
+            "moves": ["shadow-ball", "dark-pulse"]
+        }
+
+        # Act
+        response = self.client.post(url, data, format="json")
+
+        # Assert
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert str(response.data["message"]["types"][0]) == "Object with name=fighting does not exist."
+
+
     def test_PATCHPokemon_WithCorrectData_ReturnOK(self):
         # Arrange
         pokemon = Pokemon.objects.create(

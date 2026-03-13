@@ -45,7 +45,7 @@ class Query(graphene.ObjectType):
     )
     pokemon = graphene.Field(PokemonType, id=graphene.Int(required=True))
 
-    types = graphene.List(TypeType)
+    types = graphene.List(TypeType, name=graphene.String())
     abilities = graphene.List(AbilityType)
     moves = graphene.List(MoveType)
 
@@ -66,8 +66,13 @@ class Query(graphene.ObjectType):
     def resolve_pokemon(root, info, id):
         return Pokemon.objects.get(id=id)
 
-    def resolve_types(root, info):
-        return Type.objects.all()
+    def resolve_types(root, info, name):
+        queryset = Type.objects.all()
+
+        if name:
+            queryset = Type.objects.filter(name__startswith=name)
+
+        return queryset
 
     def resolve_abilities(root, info):
         return Ability.objects.all()
@@ -82,5 +87,4 @@ class Query(graphene.ObjectType):
         return User.objects.get(id=id)
 
 
-# główny schema
 schema = graphene.Schema(query=Query)
