@@ -126,6 +126,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class CustomTokenRefreshView(TokenRefreshView):
+    name = "refresh token"
+
     @swagger_auto_schema(tags=["Auth"])
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)

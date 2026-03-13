@@ -23,7 +23,6 @@ from graphene_django.views import GraphQLView
 from rest_framework import permissions
 
 from app import views
-from app.views import CustomTokenObtainPairView, CustomTokenRefreshView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -44,10 +43,6 @@ urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-
-    # TOKEN
-    path("api/token/", CustomTokenObtainPairView.as_view(), name=views.CustomTokenObtainPairView.name),
-    path("api/token/refresh/", CustomTokenRefreshView.as_view()),
 
     # APP
     path("api/", include("app.urls")),
