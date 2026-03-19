@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
@@ -152,5 +152,17 @@ class LogoutView(generics.CreateAPIView):
 
 
 
-def index(request):
-    return render(request, 'index.html')
+def pokemon_list(request):
+    pokemons = Pokemon.objects.prefetch_related("types").all()
+
+    return render(request, 'pokemon_list.html', {
+        'pokemons': pokemons
+    })
+
+
+def pokemon_detail(request, pk):
+    pokemon = get_object_or_404(Pokemon, pk=pk)
+
+    return render(request, 'pokemon_detail.html', {
+        'pokemon': pokemon
+    })

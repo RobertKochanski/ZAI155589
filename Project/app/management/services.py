@@ -47,11 +47,14 @@ def import_pokemons(limit=20):
 
     # zbieranie danych
     for data in results:
+        sprite = data["sprites"]["front_default"]
+
         pokemon_objs.append(
             Pokemon(
                 name=data["name"],
                 height=data["height"],
-                weight=data["weight"]
+                weight=data["weight"],
+                sprite=sprite if sprite else None
             )
         )
 

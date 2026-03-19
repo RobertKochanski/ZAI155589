@@ -30,6 +30,8 @@ class Pokemon(models.Model):
     height = models.IntegerField()
     weight = models.IntegerField()
 
+    sprite = models.URLField(null=True, blank=True)
+
     types = models.ManyToManyField(Type)
     abilities = models.ManyToManyField(Ability)
     moves = models.ManyToManyField(Move)
