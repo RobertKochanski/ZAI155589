@@ -1,39 +1,9 @@
 import graphene
-from graphene_django import DjangoObjectType
-
-from .models import Pokemon, Type, Ability, Move
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 
-
-# GraphQL typy oparte o modele Django
-class PokemonType(DjangoObjectType):
-    class Meta:
-        model = Pokemon
-        fields = "__all__"
-
-
-class TypeType(DjangoObjectType):
-    class Meta:
-        model = Type
-        fields = "__all__"
-
-
-class AbilityType(DjangoObjectType):
-    class Meta:
-        model = Ability
-        fields = "__all__"
-
-
-class MoveType(DjangoObjectType):
-    class Meta:
-        model = Move
-        fields = "__all__"
-
-
-class UserType(DjangoObjectType):
-    class Meta:
-        model = User
-        fields = "__all__"
+from app.graphQL.types import PokemonType, TypeType, AbilityType, MoveType, UserType
+from app.models import Pokemon, Type, Ability, Move
 
 
 # Zapytania (queries)
@@ -44,6 +14,8 @@ class Query(graphene.ObjectType):
         offset=graphene.Int()
     )
     pokemon = graphene.Field(PokemonType, id=graphene.Int(required=True))
+    pokemon_by_name = graphene.List(PokemonType, name=graphene.String())
+
 
     types = graphene.List(TypeType, name=graphene.String())
     abilities = graphene.List(AbilityType)
@@ -64,7 +36,15 @@ class Query(graphene.ObjectType):
         return queryset
 
     def resolve_pokemon(root, info, id):
-        return Pokemon.objects.get(id=id)
+        return get_object_or_404(Pokemon, pk=id)
+
+    def resolve_pokemon_by_name(root, info, name):
+        queryset = Pokemon.objects.all()
+
+        if name:
+            queryset = Pokemon.objects.filter(name__startswith=name)
+
+        return queryset
 
     def resolve_types(root, info, name):
         queryset = Type.objects.all()
@@ -84,7 +64,4 @@ class Query(graphene.ObjectType):
         return User.objects.all()
 
     def resolve_user(root, info, id):
-        return User.objects.get(id=id)
-
-
-schema = graphene.Schema(query=Query)
+        return get_object_or_404(User, pk=id)

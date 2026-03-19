@@ -2,6 +2,7 @@ import asyncio
 
 import httpx
 
+from django.db import transaction
 from app.models import Pokemon, Type, Ability, Move
 
 

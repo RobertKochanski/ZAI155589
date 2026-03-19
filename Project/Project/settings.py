@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'drf_yasg',
     "graphene_django",
+    "graphql_jwt.refresh_token",
 
     'app',
 ]
@@ -161,5 +162,18 @@ SIMPLE_JWT = {
 }
 
 GRAPHENE = {
-    "SCHEMA": "app.schema.schema"
+    "SCHEMA": "app.graphQL.schema.schema",
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
+
+GRAPHQL_JWT = {
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+}
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
