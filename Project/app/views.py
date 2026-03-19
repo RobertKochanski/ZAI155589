@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
@@ -148,3 +149,8 @@ class LogoutView(generics.CreateAPIView):
         serializer.save()
 
         return Response(status=status.HTTP_205_RESET_CONTENT)
+
+
+
+def index(request):
+    return render(request, 'index.html')

@@ -23,6 +23,7 @@ from graphene_django.views import GraphQLView
 from rest_framework import permissions
 
 from app import views
+from app.views import index
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -49,4 +50,7 @@ urlpatterns = [
 
     # GRAPHQL
     path("graphql/", GraphQLView.as_view(graphiql=True)),
+
+    # BOOTSTRAP
+    path('', index, name='index'),
 ]
