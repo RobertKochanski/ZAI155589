@@ -1,8 +1,8 @@
 from django.urls import path
 
-from . import views
 from app.views import PokemonListCreateView, PokemonDetailView, PokemonSummaryView, MeView, RegisterView, TypesView, \
     CustomTokenRefreshView, CustomTokenObtainPairView, LogoutView
+from . import views
 
 urlpatterns = [
     path("pokemons/", PokemonListCreateView.as_view(), name=views.PokemonListCreateView.name),

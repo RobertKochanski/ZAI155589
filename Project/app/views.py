@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django_filters.rest_framework import DjangoFilterBackend
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,6 +13,7 @@ from rest_framework import status
 
 
 from .customPermissions import IsOwnerOrAdmin
+from .forms import PokemonForm
 from .models import Pokemon, Type
 from .serializers import PokemonWriteSerializer, PokemonReadSerializer, RegisterSerializer, UserSerializer, \
     PokemonSummarySerializer, TypeSerializer, LogoutSerializer
@@ -152,17 +155,40 @@ class LogoutView(generics.CreateAPIView):
 
 
 
-def pokemon_list(request):
-    pokemons = Pokemon.objects.prefetch_related("types").all()
+class PokemonListView(ListView):
+    model = Pokemon
+    template_name = "pokemon_list.html"
+    context_object_name = "pokemons"
 
-    return render(request, 'pokemon_list.html', {
-        'pokemons': pokemons
-    })
+    def get_queryset(self):
+        return Pokemon.objects.prefetch_related("types")
 
 
-def pokemon_detail(request, pk):
-    pokemon = get_object_or_404(Pokemon, pk=pk)
+class PokemonView(DetailView):
+    model = Pokemon
+    template_name = "pokemon_detail.html"
+    context_object_name = "pokemon"
 
-    return render(request, 'pokemon_detail.html', {
-        'pokemon': pokemon
-    })
+
+class PokemonCreateView(CreateView):
+    model = Pokemon
+    form_class = PokemonForm
+    template_name = "pokemon_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy("pokemon-detail", kwargs={"pk": self.object.pk})
+
+
+class PokemonUpdateView(UpdateView):
+    model = Pokemon
+    form_class = PokemonForm
+    template_name = "pokemon_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy("pokemon-detail", kwargs={"pk": self.object.pk})
+
+
+class PokemonDeleteView(DeleteView):
+    model = Pokemon
+    template_name = "pokemon_delete.html"
+    success_url = reverse_lazy("pokemon-list")

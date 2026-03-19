@@ -65,8 +65,7 @@
                 <h1 class="fw-light">Pokemon Album</h1>
                 <p class="lead text-muted">Projekt na zaliczenie ZAI</p>
                 <p>
-                    <a href="#" class="btn btn-primary my-2">Add new Pokemon</a>
-                    <a href="#" class="btn btn-secondary my-2">Secondary action</a>
+                    <a href="/create/" class="btn btn-primary my-2">Add new Pokemon</a>
                 </p>
             </div>
         </div>
@@ -77,39 +76,43 @@
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                 {% for pokemon in pokemons %}
-                <div class="col">
-                    <div class="card shadow-sm">
-                        {% if pokemon.sprite %}
-                            <img src="{{ pokemon.sprite }}" class="card-img-top" style="height:225px; object-fit:contain;">
-                        {% else %}
-                            <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
-                                <rect width="100%" height="100%" fill="#55595c"></rect>
-                            </svg>
-                        {% endif %}
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            {% if pokemon.sprite %}
+                                <img src="{{ pokemon.sprite }}" class="card-img-top"
+                                     style="height:225px; object-fit:contain;">
+                            {% else %}
+                                <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
+                                    <rect width="100%" height="100%" fill="#55595c"></rect>
+                                </svg>
+                            {% endif %}
 
-                        <div class="card-body">
-                            <h5 class="card-title text-capitalize">
-                                {{ pokemon.name }}
-                            </h5>
-                            <p class="card-text">
-                                Height: {{ pokemon.height }} <br>
-                                Weight: {{ pokemon.weight }}
-                            </p>
-                            <p>
-                                {% for type in pokemon.types.all %}
-                                    <span class="badge bg-primary">{{ type.name }}</span>
-                                {% endfor %}
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <a class="btn btn-sm btn-outline-secondary" href="/detail/{{ pokemon.pk }}">View</a>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                            <div class="card-body">
+                                <h5 class="card-title text-capitalize">
+                                    {{ pokemon.name }}
+                                </h5>
+                                <p class="card-text">
+                                    Height: {{ pokemon.height }} <br>
+                                    Weight: {{ pokemon.weight }}
+                                </p>
+                                <p>
+                                    {% for type in pokemon.types.all %}
+                                        <span class="badge bg-primary">{{ type.name }}</span>
+                                    {% endfor %}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a class="btn btn-sm btn-outline-secondary" href="/{{ pokemon.pk }}">View</a>
+                                        <a class="btn btn-sm btn-outline-secondary"
+                                           href="/edit/{{ pokemon.pk }}">Edit</a>
+                                        <a class="btn btn-sm btn-outline-danger"
+                                           href="/delete/{{ pokemon.pk }}">Delete</a>
+                                    </div>
+                                    <small class="text-muted">ID: {{ pokemon.id }}</small>
                                 </div>
-                                <small class="text-muted">ID: {{ pokemon.id }}</small>
                             </div>
                         </div>
                     </div>
-                </div>
                 {% endfor %}
 
             </div>
@@ -128,7 +131,6 @@
                 href="/docs/5.0/getting-started/introduction/">getting started guide</a>.</p>
     </div>
 </footer>
-
 
 
 </body>

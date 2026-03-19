@@ -22,8 +22,7 @@ from drf_yasg.views import get_schema_view
 from graphene_django.views import GraphQLView
 from rest_framework import permissions
 
-from app import views
-from app.views import pokemon_list, pokemon_detail
+from app.views import PokemonListView, PokemonView, PokemonCreateView, PokemonUpdateView, PokemonDeleteView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -40,18 +39,20 @@ urlpatterns = [
     # ADMIN
     path('admin/', admin.site.urls),
 
-    # SWAGGER
+    # SWAGGER (Project2)
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
-
-    # APP
+    # APP (Project2)
     path("api/", include("app.urls")),
 
-    # GRAPHQL
+    # GRAPHQL (Project2)
     path("graphql/", GraphQLView.as_view(graphiql=True)),
 
-    # BOOTSTRAP
-    path('', pokemon_list, name='pokemon_list'),
-    path('detail/<int:pk>/', pokemon_detail, name='pokemon_detail'),
+    # BOOTSTRAP (Project1)
+    path("", PokemonListView.as_view(), name="pokemon-list"),
+    path("<int:pk>/", PokemonView.as_view(), name="pokemon-detail"),
+    path("create/", PokemonCreateView.as_view(), name="pokemon-create"),
+    path("edit/<int:pk>/", PokemonUpdateView.as_view(), name="pokemon-update"),
+    path("delete/<int:pk>/", PokemonDeleteView.as_view(), name="pokemon-delete"),
 ]

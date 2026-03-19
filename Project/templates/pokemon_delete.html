@@ -124,6 +124,19 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2>Delete pokemon {{ pokemon.name }}?</h2>
+                            <form method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <a href="/{{ pokemon.pk }}" class="btn btn-secondary">Cancel</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
