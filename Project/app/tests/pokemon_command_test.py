@@ -37,7 +37,8 @@ class PokemonTests(APITestCase):
             "weight": 405,
             "types": ["ghost", "poison"],
             "abilities": ["cursed-body"],
-            "moves": ["shadow-ball", "dark-pulse"]
+            "moves": ["shadow-ball", "dark-pulse"],
+            "sprite": ""
         }
 
         # Act

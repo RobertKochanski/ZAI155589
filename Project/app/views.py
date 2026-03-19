@@ -1,12 +1,11 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.response import Response
 from rest_framework import status
@@ -156,6 +155,7 @@ class LogoutView(generics.CreateAPIView):
 
 
 class PokemonListView(ListView):
+    name = "list"
     model = Pokemon
     template_name = "pokemon_list.html"
     context_object_name = "pokemons"
@@ -165,30 +165,34 @@ class PokemonListView(ListView):
 
 
 class PokemonView(DetailView):
+    name = "details"
     model = Pokemon
     template_name = "pokemon_detail.html"
     context_object_name = "pokemon"
 
 
 class PokemonCreateView(CreateView):
+    name = "create"
     model = Pokemon
     form_class = PokemonForm
     template_name = "pokemon_form.html"
 
     def get_success_url(self):
-        return reverse_lazy("pokemon-detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy("details", kwargs={"pk": self.object.pk})
 
 
 class PokemonUpdateView(UpdateView):
+    name = "update"
     model = Pokemon
     form_class = PokemonForm
     template_name = "pokemon_form.html"
 
     def get_success_url(self):
-        return reverse_lazy("pokemon-detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy("details", kwargs={"pk": self.object.pk})
 
 
 class PokemonDeleteView(DeleteView):
+    name = "delete"
     model = Pokemon
     template_name = "pokemon_delete.html"
-    success_url = reverse_lazy("pokemon-list")
+    success_url = reverse_lazy("list")

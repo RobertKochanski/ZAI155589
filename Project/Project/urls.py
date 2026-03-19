@@ -50,9 +50,9 @@ urlpatterns = [
     path("graphql/", GraphQLView.as_view(graphiql=True)),
 
     # BOOTSTRAP (Project1)
-    path("", PokemonListView.as_view(), name="pokemon-list"),
-    path("<int:pk>/", PokemonView.as_view(), name="pokemon-detail"),
-    path("create/", PokemonCreateView.as_view(), name="pokemon-create"),
-    path("edit/<int:pk>/", PokemonUpdateView.as_view(), name="pokemon-update"),
-    path("delete/<int:pk>/", PokemonDeleteView.as_view(), name="pokemon-delete"),
+    path("", PokemonListView.as_view(), name=PokemonListView.name),
+    path("<int:pk>/", PokemonView.as_view(), name=PokemonView.name),
+    path("create/", PokemonCreateView.as_view(), name=PokemonCreateView.name),
+    path("edit/<int:pk>/", PokemonUpdateView.as_view(), name=PokemonUpdateView.name),
+    path("delete/<int:pk>/", PokemonDeleteView.as_view(), name=PokemonDeleteView.name),
 ]
