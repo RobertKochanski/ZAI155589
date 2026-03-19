@@ -2,7 +2,7 @@ from django.urls import path
 
 from . import views
 from app.views import PokemonListCreateView, PokemonDetailView, PokemonSummaryView, MeView, RegisterView, TypesView, \
-    CustomTokenRefreshView, CustomTokenObtainPairView
+    CustomTokenRefreshView, CustomTokenObtainPairView, LogoutView
 
 urlpatterns = [
     path("pokemons/", PokemonListCreateView.as_view(), name=views.PokemonListCreateView.name),
@@ -13,6 +13,7 @@ urlpatterns = [
     path("types/", TypesView.as_view(), name=views.TypesView.name),
 
     # TOKEN
-    path("api/token/", CustomTokenObtainPairView.as_view(), name=views.CustomTokenObtainPairView.name),
-    path("api/token/refresh/", CustomTokenRefreshView.as_view(), name=views.CustomTokenRefreshView.name),
+    path("token/", CustomTokenObtainPairView.as_view(), name=views.CustomTokenObtainPairView.name),
+    path("token/refresh/", CustomTokenRefreshView.as_view(), name=views.CustomTokenRefreshView.name),
+    path("logout/", LogoutView.as_view(), name=views.LogoutView.name),
 ]

@@ -3,13 +3,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.response import Response
+from rest_framework import status
+
 
 from .customPermissions import IsOwnerOrAdmin
 from .models import Pokemon, Type
 from .serializers import PokemonWriteSerializer, PokemonReadSerializer, RegisterSerializer, UserSerializer, \
-    PokemonSummarySerializer, TypeSerializer
+    PokemonSummarySerializer, TypeSerializer, LogoutSerializer
 
 
 class PokemonListCreateView(generics.ListCreateAPIView):
@@ -131,3 +134,17 @@ class CustomTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(tags=["Auth"])
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
+
+
+class LogoutView(generics.CreateAPIView):
+    name = "logout"
+    serializer_class = LogoutSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+
+    @swagger_auto_schema(tags=["Auth"])
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_205_RESET_CONTENT)

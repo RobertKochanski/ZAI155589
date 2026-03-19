@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
 from app.exceptions import PokemonTypeLimitExceeded, PokemonTypeDuplicated, PokemonMoveDuplicated
@@ -161,3 +162,12 @@ class PokemonWriteSerializer(serializers.ModelSerializer):
             raise PokemonAbilitiesDuplicated()
 
         return value
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def save(self, **kwargs):
+        refresh_token = self.validated_data["refresh"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()
