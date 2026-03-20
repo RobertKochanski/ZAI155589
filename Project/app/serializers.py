@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
-from app.exceptions import PokemonTypeLimitExceeded, PokemonTypeDuplicated, PokemonMoveDuplicated
+from app.exceptions import PokemonTypeLimitExceeded, PokemonTypeDuplicated, PokemonMoveDuplicated, \
+    PokemonAbilitiesDuplicated
 from .models import Pokemon, Type, Ability, Move
 
 
