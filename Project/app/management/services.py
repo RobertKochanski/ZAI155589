@@ -6,8 +6,8 @@ from django.db import transaction
 from app.models import Pokemon, Type, Ability, Move
 
 
-async def fetch_pokemon_list(limit=20):
-    url = f"https://pokeapi.co/api/v2/pokemon?limit={limit}"
+async def fetch_pokemon_list(limit, offset):
+    url = f"https://pokeapi.co/api/v2/pokemon?limit={limit}&offset={offset}"
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
@@ -22,8 +22,8 @@ async def fetch_pokemon_details(client, url, semaphore):
         return response.json()
 
 
-async def fetch_all_pokemons(limit=20):
-    pokemons = await fetch_pokemon_list(limit)
+async def fetch_all_pokemons(limit, offset):
+    pokemons = await fetch_pokemon_list(limit, offset)
     semaphore = asyncio.Semaphore(10)
 
     async with httpx.AsyncClient(timeout=30) as client:
@@ -37,8 +37,8 @@ async def fetch_all_pokemons(limit=20):
     return results
 
 
-def import_pokemons(limit=20):
-    results = asyncio.run(fetch_all_pokemons(limit))
+def import_pokemons(limit, offset):
+    results = asyncio.run(fetch_all_pokemons(limit, offset))
 
     pokemon_objs = []
     type_names = set()
@@ -63,6 +63,11 @@ def import_pokemons(limit=20):
         move_names |= {m["move"]["name"] for m in data["moves"][:10]}
 
 
+    # bierzemy tylko nowe dane
+    existing_pokemons = set(Pokemon.objects.values_list("name", flat=True))
+    new_pokemons = [p for p in pokemon_objs if p.name not in existing_pokemons]
+
+
     with transaction.atomic():
 
         # bulk create słowników
@@ -82,7 +87,7 @@ def import_pokemons(limit=20):
         )
 
         # bulk create pokemonów
-        Pokemon.objects.bulk_create(pokemon_objs, ignore_conflicts=True)
+        Pokemon.objects.bulk_create(new_pokemons)
 
         # mapy obiektów
         pokemon_map = {p.name: p for p in Pokemon.objects.all()}

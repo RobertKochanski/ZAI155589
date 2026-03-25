@@ -12,7 +12,7 @@ class PokemonForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         for name, field in self.fields.items():
-            if field.widget.__class__.__name__ == "SelectMultiple":
+            if isinstance(field.widget, forms.SelectMultiple):
                 field.widget.attrs.update({"class": "form-select"})
             else:
                 field.widget.attrs.update({"class": "form-control"})
